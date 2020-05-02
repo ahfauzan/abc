@@ -2,8 +2,11 @@
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
-
+import { environment } from '@environments/environment';
+import * as Parse from 'parse';
 import { AccountService, AlertService } from '@app/_services';
+import { User } from '@app/_models';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({ templateUrl: 'login.component.html' })
 export class LoginComponent implements OnInit {
@@ -12,13 +15,24 @@ export class LoginComponent implements OnInit {
     submitted = false;
     returnUrl: string;
 
+    private userSubject: BehaviorSubject<User>;
+    public user: Observable<User>;
+
     constructor(
         private formBuilder: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
         private alertService: AlertService
-    ) { }
+    ) {
+        Parse.initialize(environment.PARSE_APP_ID, environment.PARSE_JS_KEY);
+        Parse.serverURL = environment.serverURL;
+        this.userSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('user')));
+        this.user = this.userSubject.asObservable();
+    }
+    public get userValue(): User {
+        return this.userSubject.value;
+    }
 
     ngOnInit() {
         this.form = this.formBuilder.group({
@@ -33,7 +47,7 @@ export class LoginComponent implements OnInit {
     // convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
-    onSubmit() {
+    async onSubmit() {
         this.submitted = true;
 
         // reset alerts on submit
@@ -45,15 +59,25 @@ export class LoginComponent implements OnInit {
         }
 
         this.loading = true;
-        this.accountService.login(this.f.username.value, this.f.password.value)
-            .pipe(first())
-            .subscribe(
-                data => {
-                    this.router.navigate([this.returnUrl]);
-                },
-                error => {
-                    this.alertService.error(error);
-                    this.loading = false;
-                });
+        try {
+            const user = await Parse.User.logIn(this.f.username.value, this.f.password.value);
+            localStorage.setItem('user', JSON.stringify(user));
+            this.userSubject.next(user);
+            this.router.navigate([this.returnUrl]);
+
+        } catch (error) {
+            this.alertService.error(error);
+            this.loading = false;
+        }
+        // this.accountService.login(this.f.username.value, this.f.password.value)
+        //     .pipe(first())
+        //     .subscribe(
+        //         data => {
+        //             this.router.navigate([this.returnUrl]);
+        //         },
+        //         error => {
+        //             this.alertService.error(error);
+        //             this.loading = false;
+        //         });
     }
 }

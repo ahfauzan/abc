@@ -4,7 +4,10 @@
 
 export const environment = {
     production: false,
-    apiUrl: 'http://localhost:4001'
+    apiUrl: 'http://localhost:4001',
+    PARSE_APP_ID: 'myAppId',
+    PARSE_JS_KEY: 'jshdgfjgs',
+    serverURL: 'https://sutraaa.herokuapp.com/parse'
 };
 
 /*

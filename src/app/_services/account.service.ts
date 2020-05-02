@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import * as Parse from 'parse';
 import { environment } from '@environments/environment';
 import { User } from '@app/_models';
 
@@ -18,6 +18,8 @@ export class AccountService {
     ) {
         this.userSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('user')));
         this.user = this.userSubject.asObservable();
+        Parse.initialize(environment.PARSE_APP_ID, environment.PARSE_JS_KEY);
+        Parse.serverURL = environment.serverURL;
     }
 
     public get userValue(): User {
@@ -25,6 +27,24 @@ export class AccountService {
     }
 
     login(username, password) {
+
+        // return Parse.User.logIn(username, password)
+        //     .pipe(map(user => {
+        //         // store user details and jwt token in local storage to keep user logged in between page refreshes
+        //         localStorage.setItem('user', JSON.stringify(user));
+        //         this.userSubject.next(user);
+        //         return user;
+        //     }));
+
+        // .pipe(map(user => {
+        //     // store user details and jwt token in local storage to keep user logged in between page refreshes
+
+        // }));
+        //     localStorage.setItem('user', JSON.stringify(user));
+        //     this.userSubject.next(user);
+        //     this.router.navigate([this.returnUrl]);
+
+
         return this.http.post<User>(`${environment.apiUrl}/users/authenticate`, { username, password })
             .pipe(map(user => {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
