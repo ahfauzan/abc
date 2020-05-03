@@ -11,25 +11,35 @@ import { JwtInterceptor, ErrorInterceptor } from './_helpers';
 import { AppComponent } from './app.component';
 import { AlertComponent } from './_components';
 import { HomeComponent } from './home';
+import {LoginComponent} from '@app/account/login.component'
+import { AccountService } from './_services';
+import { AccountModule } from './account/account.module';
+
 
 @NgModule({
     imports: [
         BrowserModule,
         ReactiveFormsModule,
         HttpClientModule,
-        AppRoutingModule
+        AppRoutingModule,
+        AccountModule
     ],
     declarations: [
         AppComponent,
         AlertComponent,
         HomeComponent
+       
+        
     ],
+    
+    
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+        // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+        // { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
 
-        // provider used to create fake backend
-        fakeBackendProvider
+        // // provider used to create fake backend
+        // fakeBackendProvider
+        AccountService
     ],
     bootstrap: [AppComponent]
 })

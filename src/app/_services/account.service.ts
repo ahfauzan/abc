@@ -6,11 +6,15 @@ import { map } from 'rxjs/operators';
 import * as Parse from 'parse';
 import { environment } from '@environments/environment';
 import { User } from '@app/_models';
+import { UserA } from '@app/_models/usera';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
     private userSubject: BehaviorSubject<User>;
     public user: Observable<User>;
+    public usera: Observable<UserA>;
+//    usera:UserA;
+
 
     constructor(
         private router: Router,
@@ -25,35 +29,57 @@ export class AccountService {
     public get userValue(): User {
         return this.userSubject.value;
     }
+    // const user1=new User();
+   async login(username, password) {  
+        const data=new User(); 
+  const user=await Parse.User.logIn(username,password);
+    console.log(user);
+data.id=user.id;
+    data.sessionToken=user.get("sessionToken");
+    data.firstName=user.get("firstName");
+    data.lastName=user.get("lastName");
+    data.username=user.get("username");
+    data.password=user.get("password");
 
-    login(username, password) {
+    console.log(data.sessionToken);
+    localStorage.setItem('user', JSON.stringify(data));
+    this.userSubject.next(data);
+  //  console.log([this.returnUrl]);
+    console.log(this.userSubject.getValue());
+  //  this.router.navigate([this.returnUrl]) ;
+    
+    return data; 
+   }
+      
+    // async login(username, password) {
+    //      return await Parse.User.logIn(username, password)
+    //         .pipe(map((user) => {
+                
+    //             // store user details and jwt token in local storage to keep user logged in between page refreshes
+    //             localStorage.setItem('user', JSON.stringify(user));
+    //             console.log(user);
+    //             //this.userSubject.next(user);
+    //             return user;
+    //         }));
+    
+    //     // .pipe(map(user => {
+    //     //     // store user details and jwt token in local storage to keep user logged in between page refreshes
 
-        // return Parse.User.logIn(username, password)
-        //     .pipe(map(user => {
-        //         // store user details and jwt token in local storage to keep user logged in between page refreshes
-        //         localStorage.setItem('user', JSON.stringify(user));
-        //         this.userSubject.next(user);
-        //         return user;
-        //     }));
-
-        // .pipe(map(user => {
-        //     // store user details and jwt token in local storage to keep user logged in between page refreshes
-
-        // }));
-        //     localStorage.setItem('user', JSON.stringify(user));
-        //     this.userSubject.next(user);
-        //     this.router.navigate([this.returnUrl]);
+    //     // }));
+    //     //     localStorage.setItem('user', JSON.stringify(user));
+    //     //     this.userSubject.next(user);
+    //     //     this.router.navigate([this.returnUrl]);
 
 
-        return this.http.post<User>(`${environment.apiUrl}/users/authenticate`, { username, password })
-            .pipe(map(user => {
-                // store user details and jwt token in local storage to keep user logged in between page refreshes
-                localStorage.setItem('user', JSON.stringify(user));
-                this.userSubject.next(user);
-                return user;
-            }));
-    }
-
+    //     return this.http.post<User>(`${environment.apiUrl}/users/authenticate`, { username, password })
+    //         .pipe(map(user => {
+    //             // store user details and jwt token in local storage to keep user logged in between page refreshes
+    //             localStorage.setItem('user', JSON.stringify(user));
+    //             this.userSubject.next(user);
+    //             return user;
+    //         }));
+    // }
+ 
     logout() {
         // remove user from local storage and set current user to null
         localStorage.removeItem('user');
