@@ -105,16 +105,19 @@ export class LoginComponent implements OnInit {
     //  this.loading = false;
 
       // }
+      try {
       const data=await this.accountService.login(this.f.username.value, this.f.password.value)
             .then()
-            if(data) {
+            if(data) 
                     this.router.navigate([this.returnUrl]);
-                }
-               else(data) => {
-                    this.alertService.error(data);
-                    this.loading = false;
-                };
-    }
+                
+              
+            } catch (error) {
+                         this.alertService.error(error);
+                            this.loading = false;
+                         }
+   
+            }
     
            }
         //}
